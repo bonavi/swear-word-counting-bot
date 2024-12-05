@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"pkg/log"
-	"pkg/slices"
 	"server/internal/services/checker/model"
 	"server/internal/services/checker/service/utils"
+	statisticModel "server/internal/services/statistic/model"
 )
 
 func (s *CheckerService) CheckMessage(ctx context.Context, req model.CheckMessageReq) error {
@@ -14,13 +14,10 @@ func (s *CheckerService) CheckMessage(ctx context.Context, req model.CheckMessag
 	defer span.End()
 
 	// Получаем все маты
-	swearsDictionary, err := s.checkerRepository.GetSwears(ctx)
+	swearsMap, err := s.swearService.GetSwears(ctx)
 	if err != nil {
 		return err
 	}
-
-	// Делаем мапу
-	swearsMap := slices.GetMapValueStruct(swearsDictionary, func(swear string) string { return swear })
 
 	// Проверяем на маты
 	swears := utils.GetSwears(req.Message.Text, swearsMap)
@@ -33,11 +30,12 @@ func (s *CheckerService) CheckMessage(ctx context.Context, req model.CheckMessag
 	log.Info(ctx, "Матершиник найден")
 
 	// Сохраняем статистику
-	if err = s.checkerRepository.SaveStatistic(ctx, model.SaveStatisticsReq{
+	if err = s.statisticRepository.SaveStatistic(ctx, statisticModel.SaveStatisticsReq{
 		UserID:    req.User.ID,
 		MessageID: req.Message.ID,
 		ChatID:    req.Message.ChatID,
 		Swears:    swears,
+		Datetime:  req.Message.Datetime,
 	}); err != nil {
 		return err
 	}

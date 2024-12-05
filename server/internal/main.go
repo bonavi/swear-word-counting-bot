@@ -26,9 +26,12 @@ import (
 	"server/internal/config"
 	_ "server/internal/docs"
 	checkerEndpoint "server/internal/services/checker/endpoint"
-	checkerRepository "server/internal/services/checker/repository"
 	checkerService "server/internal/services/checker/service"
 	shedulerService "server/internal/services/scheduler"
+	statisticRepository "server/internal/services/statistic/repository"
+	swearEndpoint "server/internal/services/swear/endpoint"
+	swearRepository "server/internal/services/swear/repository"
+	swearService "server/internal/services/swear/service"
 	tgBotService "server/internal/services/tgBot/service"
 	"server/migrations"
 )
@@ -137,9 +140,6 @@ func run() error {
 		return err
 	}
 
-	// Регистрируем репозитории
-	checkerRepository := checkerRepository.NewCheckerRepository(pgsql)
-
 	log.Info(ctx, "Инициализируем Telegram-бота")
 	tgBot, err := telebot.NewBot(telebot.Settings{
 		URL:         "",
@@ -158,9 +158,14 @@ func run() error {
 	}
 	defer tgBot.Close()
 
+	// Регистрируем репозитории
+	statisticRepository := statisticRepository.NewStatisticRepository(pgsql)
+	swearRepository := swearRepository.NewSwearRepository(pgsql)
+
 	// Регистрируем сервисы
 	_ = tgBotService.NewTgBotService(tgBot, cfg.Telegram.Enabled)
-	checkerService := checkerService.NewCheckerService(checkerRepository)
+	swearService := swearService.NewSwearService(swearRepository)
+	checkerService := checkerService.NewCheckerService(statisticRepository, swearService)
 
 	log.Info(ctx, "Запускаем планировщик")
 	if err = shedulerService.NewScheduler().Start(); err != nil {
@@ -172,7 +177,8 @@ func run() error {
 	r.Mount("/swagger", httpSwagger.WrapHandler)
 
 	// Регистрируем Телеграм-эндпоинты
-	checkerEndpoint.NewTgBotEndpoint(tgBot, checkerService)
+	checkerEndpoint.NewCheckerEndpoint(tgBot, checkerService)
+	swearEndpoint.NewSwearEndpoint(tgBot, swearService)
 
 	server, err := server.GetDefaultServer(cfg.HTTP, r)
 	if err != nil {
@@ -186,6 +192,7 @@ func run() error {
 	eg.Go(func() error { return server.Serve(ctx) })
 
 	eg.Go(func() error {
+		log.Info(ctx, "Telegram bot is listening")
 		tgBot.Start()
 		return nil
 	})

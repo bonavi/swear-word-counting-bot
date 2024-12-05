@@ -5,27 +5,36 @@ import (
 
 	"go.opentelemetry.io/otel"
 
-	"server/internal/services/checker/model"
-	checkerRepository "server/internal/services/checker/repository"
+	statisticModel "server/internal/services/statistic/model"
+	statisticRepository "server/internal/services/statistic/repository"
+	swearService "server/internal/services/swear/service"
 )
 
 var tracer = otel.Tracer("/server/internal/services/checker/service")
 
 type CheckerService struct {
-	checkerRepository CheckerRepository
+	statisticRepository StatisticRepository
+	swearService        SwearService
 }
 
-var _ CheckerRepository = new(checkerRepository.CheckerRepository)
+var _ StatisticRepository = new(statisticRepository.StatisticRepository)
 
-type CheckerRepository interface {
-	GetSwears(context.Context) ([]string, error)
-	SaveStatistic(context.Context, model.SaveStatisticsReq) error
+type StatisticRepository interface {
+	SaveStatistic(context.Context, statisticModel.SaveStatisticsReq) error
+}
+
+var _ SwearService = new(swearService.SwearService)
+
+type SwearService interface {
+	GetSwears(context.Context) (map[string]struct{}, error)
 }
 
 func NewCheckerService(
-	checkerRepository CheckerRepository,
+	checkerRepository StatisticRepository,
+	swearService SwearService,
 ) *CheckerService {
 	return &CheckerService{
-		checkerRepository: checkerRepository,
+		statisticRepository: checkerRepository,
+		swearService:        swearService,
 	}
 }

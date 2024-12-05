@@ -9,7 +9,9 @@ const (
 )
 
 const (
-	ColumnText = "text"
+	ColumnText     = "text"
+	ColumnDatetime = "datetime"
+	ColumnUserID   = "user_id"
 )
 
 func WithPrefix(column string) string {

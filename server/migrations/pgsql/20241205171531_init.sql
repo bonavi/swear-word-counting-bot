@@ -7,6 +7,8 @@ CREATE SCHEMA swears_counting_bot;
 -- Создаем таблицу ругательств
 CREATE TABLE swears_counting_bot.swears (
 	"text" varchar NOT NULL,
+	datetime timestamptz NOT NULL,
+	/addSwears нахуйuser_id BIGINT NOT NULL,
 	CONSTRAINT swears_pk PRIMARY KEY ("text")
 );
 
@@ -17,6 +19,7 @@ CREATE TABLE swears_counting_bot."statistics" (
 	chat_id BIGINT NOT NULL,
 	user_id BIGINT NOT NULL,
 	swear varchar NOT NULL,
+	datetime timestamptz NOT NULL,
 	CONSTRAINT statistics_pk PRIMARY KEY (id),
 	CONSTRAINT statistics_swears_fk FOREIGN KEY (swear) REFERENCES swears_counting_bot.swears("text")
 );

@@ -14,6 +14,7 @@ const (
 	ColumnChatID    = "chat_id"
 	ColumnUserID    = "user_id"
 	ColumnSwear     = "swear"
+	ColumnDatetime  = "datetime"
 )
 
 func WithPrefix(column string) string {

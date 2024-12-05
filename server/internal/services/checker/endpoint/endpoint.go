@@ -22,13 +22,11 @@ type CheckerService interface {
 	CheckMessage(context.Context, model.CheckMessageReq) error
 }
 
-func NewTgBotEndpoint(tgBot *telebot.Bot, service CheckerService) {
+func NewCheckerEndpoint(tgBot *telebot.Bot, service CheckerService) {
 
 	e := endpoint{
 		service: service,
 	}
-
-	tgBot.Handle("/start", e.commandStart)
 
 	tgBot.Handle(telebot.OnText, e.checkMessage) // Обработка обычного текста
 

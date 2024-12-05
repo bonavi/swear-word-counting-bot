@@ -33,10 +33,10 @@ func (e *endpoint) checkMessage(c telebot.Context) error {
 			LastName:  user.LastName,
 		},
 		Message: model.Message{
-			Text:   message.Text,
-			Time:   message.Time(),
-			ID:     message.ID,
-			ChatID: message.Chat.ID,
+			Text:     message.Text,
+			Datetime: message.Time(),
+			ID:       message.ID,
+			ChatID:   message.Chat.ID,
 		},
 	}); err != nil {
 		log.Error(ctx, err)

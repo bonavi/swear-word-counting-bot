@@ -21,7 +21,7 @@ env:
 
 jobs:
 
-  # Проверяем код линтером
+ #   Проверяем код линтером
   go-lint:
     uses: ./.github/workflows/lint.yml
     with:
@@ -72,6 +72,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Download submodules
+        run: git submodule update --init --recursive
 
         # Логинимся в Container registry
       - name: Login to the Container registry

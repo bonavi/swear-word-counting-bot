@@ -11,6 +11,7 @@ import (
 
 // SendMessage отправляет сообщение пользователю в телеграм
 func (s *TgBotService) SendMessage(ctx context.Context, req model.SendMessageReq) error {
+
 	ctx, span := tracer.Start(ctx, "SendMessage")
 	defer span.End()
 

@@ -6,7 +6,6 @@ import (
 	"go.opentelemetry.io/otel"
 	"gopkg.in/telebot.v3"
 
-	"pkg/errors"
 	"pkg/log"
 )
 
@@ -19,36 +18,20 @@ type TgBotService struct {
 }
 
 func NewTgBotService(
-	token string,
+	tgBot *telebot.Bot,
 	isOn bool,
-) (*TgBotService, error) {
+) *TgBotService {
 
 	if !isOn {
 		log.Warning(context.Background(), "Telegram bot is off", log.SkipThisCallOption())
 		return &TgBotService{
 			Bot:  nil,
 			isOn: isOn,
-		}, nil
-	}
-
-	bot, err := telebot.NewBot(telebot.Settings{
-		URL:         "",
-		Token:       token,
-		Updates:     0,
-		Poller:      nil,
-		Synchronous: false,
-		Verbose:     false,
-		ParseMode:   telebot.ModeHTML,
-		OnError:     nil,
-		Client:      nil,
-		Offline:     false,
-	})
-	if err != nil {
-		return nil, errors.InternalServer.Wrap(err)
+		}
 	}
 
 	return &TgBotService{
-		Bot:  bot,
+		Bot:  tgBot,
 		isOn: isOn,
-	}, nil
+	}
 }

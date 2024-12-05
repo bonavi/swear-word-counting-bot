@@ -6,12 +6,15 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/shopspring/decimal"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"golang.org/x/sync/errgroup"
+	"gopkg.in/telebot.v3"
 
 	"pkg/database/postgresql"
+	"pkg/errors"
 	"pkg/http/router"
 	"pkg/http/server"
 	"pkg/log"
@@ -22,6 +25,9 @@ import (
 	"pkg/trace"
 	"server/internal/config"
 	_ "server/internal/docs"
+	checkerEndpoint "server/internal/services/checker/endpoint"
+	checkerRepository "server/internal/services/checker/repository"
+	checkerService "server/internal/services/checker/service"
 	shedulerService "server/internal/services/scheduler"
 	tgBotService "server/internal/services/tgBot/service"
 	"server/migrations"
@@ -111,17 +117,17 @@ func run() error {
 
 	// Подключаемся к базе данных
 	log.Info(ctx, "Подключаемся к БД")
-	postrgreSQL, err := postgresql.NewClientSQL(cfg.Repository, cfg.DBName)
+	pgsql, err := postgresql.NewClientSQL(cfg.Repository, cfg.DBName)
 	if err != nil {
 		return err
 	}
-	defer postrgreSQL.Close()
+	defer pgsql.Close()
 
 	// Запускаем миграции в базе данных
 	// TODO: Подумать, как откатывать миграции при ошибках
 	log.Info(ctx, "Запускаем миграции")
 	postgreSQLMigrator := migrator.NewMigrator(
-		postrgreSQL,
+		pgsql,
 		migrator.MigratorConfig{
 			EmbedMigrations: migrations.EmbedMigrationsPostgreSQL,
 			Dir:             "pgsql",
@@ -132,24 +138,41 @@ func run() error {
 	}
 
 	// Регистрируем репозитории
+	checkerRepository := checkerRepository.NewCheckerRepository(pgsql)
+
+	log.Info(ctx, "Инициализируем Telegram-бота")
+	tgBot, err := telebot.NewBot(telebot.Settings{
+		URL:         "",
+		Token:       cfg.Telegram.Token,
+		Updates:     0,
+		Poller:      &telebot.LongPoller{Timeout: 10 * time.Second},
+		Synchronous: false,
+		Verbose:     false,
+		ParseMode:   telebot.ModeHTML,
+		OnError:     nil,
+		Client:      nil,
+		Offline:     false,
+	})
+	if err != nil {
+		return errors.InternalServer.Wrap(err)
+	}
+	defer tgBot.Close()
 
 	// Регистрируем сервисы
-	log.Info(ctx, "Инициализируем Telegram-бота")
-	tgBotService, err := tgBotService.NewTgBotService(cfg.Telegram.Token, cfg.Telegram.Enabled)
-	if err != nil {
-		return err
-	}
-	if cfg.Telegram.Enabled {
-		defer tgBotService.Bot.Close()
-	}
+	_ = tgBotService.NewTgBotService(tgBot, cfg.Telegram.Enabled)
+	checkerService := checkerService.NewCheckerService(checkerRepository)
 
 	log.Info(ctx, "Запускаем планировщик")
 	if err = shedulerService.NewScheduler().Start(); err != nil {
 		return err
 	}
 
+	// Регистрируем HTTP-эндпоинты
 	r := router.NewRouter()
 	r.Mount("/swagger", httpSwagger.WrapHandler)
+
+	// Регистрируем Телеграм-эндпоинты
+	checkerEndpoint.NewTgBotEndpoint(tgBot, checkerService)
 
 	server, err := server.GetDefaultServer(cfg.HTTP, r)
 	if err != nil {
@@ -161,6 +184,11 @@ func run() error {
 
 	// Запускаем HTTP-сервер
 	eg.Go(func() error { return server.Serve(ctx) })
+
+	eg.Go(func() error {
+		tgBot.Start()
+		return nil
+	})
 
 	// Запускаем горутину, ожидающую завершение контекста
 	eg.Go(func() error {

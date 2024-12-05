@@ -1,3 +1,5 @@
 package ddl
 
-const ()
+const (
+	SchemaSwearsCountingBot = "swears_counting_bot"
+)

@@ -11,26 +11,26 @@ import (
 
 var tracer = otel.Tracer("/server/internal/services/tgBot/service")
 
-type TgBotService struct {
+type TgBotSenderService struct {
 	Bot *telebot.Bot
 
 	isOn bool
 }
 
-func NewTgBotService(
+func NewTgBotSenderService(
 	tgBot *telebot.Bot,
 	isOn bool,
-) *TgBotService {
+) *TgBotSenderService {
 
 	if !isOn {
 		log.Warning(context.Background(), "Telegram bot is off", log.SkipThisCallOption())
-		return &TgBotService{
+		return &TgBotSenderService{
 			Bot:  nil,
 			isOn: isOn,
 		}
 	}
 
-	return &TgBotService{
+	return &TgBotSenderService{
 		Bot:  tgBot,
 		isOn: isOn,
 	}

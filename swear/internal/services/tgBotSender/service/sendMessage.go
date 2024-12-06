@@ -6,17 +6,17 @@ import (
 	"pkg/errors"
 	"pkg/log"
 
-	"swearBot/internal/services/tgBot/model"
+	"swearBot/internal/services/tgBotSender/model"
 )
 
 // SendMessage отправляет сообщение пользователю в телеграм
-func (s *TgBotService) SendMessage(ctx context.Context, req model.SendMessageReq) error {
+func (s *TgBotSenderService) SendMessage(ctx context.Context, req model.SendMessageReq) error {
 
 	ctx, span := tracer.Start(ctx, "SendMessage")
 	defer span.End()
 
 	if !s.isOn {
-		log.Warning(ctx, "Вызвана функция SendMessage. Пуши выключены")
+		log.Warning(ctx, "Вызвана функция SendMessage. Отсылка сообщений выключена")
 		return nil
 	}
 

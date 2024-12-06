@@ -8,7 +8,7 @@ CREATE SCHEMA swears_counting_bot;
 CREATE TABLE swears_counting_bot.swears (
 	"text" varchar NOT NULL,
 	datetime timestamptz NOT NULL,
-	/addSwears нахуйuser_id BIGINT NOT NULL,
+	user_id BIGINT NOT NULL,
 	CONSTRAINT swears_pk PRIMARY KEY ("text")
 );
 

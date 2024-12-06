@@ -32,7 +32,7 @@ import (
 	swearEndpoint "swearBot/internal/services/swear/endpoint"
 	swearRepository "swearBot/internal/services/swear/repository"
 	swearService "swearBot/internal/services/swear/service"
-	tgBotService "swearBot/internal/services/tgBot/service"
+	tgBotSenderService "swearBot/internal/services/tgBotSender/service"
 	"swearBot/migrations"
 )
 
@@ -168,7 +168,7 @@ func run() error {
 	swearRepository := swearRepository.NewSwearRepository(pgsql)
 
 	// Регистрируем сервисы
-	_ = tgBotService.NewTgBotService(tgBot, cfg.Telegram.Enabled)
+	tgBotSenderService := tgBotSenderService.NewTgBotSenderService(tgBot, cfg.Telegram.Enabled)
 	swearService := swearService.NewSwearService(swearRepository)
 	checkerService := checkerService.NewCheckerService(statisticRepository, swearService)
 
@@ -183,7 +183,7 @@ func run() error {
 
 	// Регистрируем Телеграм-эндпоинты
 	checkerEndpoint.NewCheckerEndpoint(tgBot, checkerService)
-	swearEndpoint.NewSwearEndpoint(tgBot, swearService)
+	swearEndpoint.NewSwearEndpoint(tgBot, tgBotSenderService, swearService)
 
 	server, err := server.GetDefaultServer(cfg.HTTP, r)
 	if err != nil {

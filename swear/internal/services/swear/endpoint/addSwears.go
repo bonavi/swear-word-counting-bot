@@ -8,6 +8,7 @@ import (
 
 	"pkg/log"
 	"swearBot/internal/services/swear/model"
+	tgBotSenderModel "swearBot/internal/services/tgBotSender/model"
 )
 
 // Чекинг сообщения
@@ -40,6 +41,15 @@ func (e *endpoint) addSwears(c telebot.Context) error {
 		Swears:   swears,
 		UserID:   user.ID,
 		Datetime: message.Time(),
+		Chat:     c.Chat(),
+	}); err != nil {
+		log.Error(ctx, err)
+	}
+
+	// Отправляем сообщение о добавлении слов
+	if err := e.tgBotSenderService.SendMessage(ctx, tgBotSenderModel.SendMessageReq{
+		Chat:    c.Chat(),
+		Message: "✅ Слова добавлены",
 	}); err != nil {
 		log.Error(ctx, err)
 	}

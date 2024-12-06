@@ -1,0 +1,17 @@
+name: prod deploy
+
+on:
+  push:
+    tags:
+      - v*
+    paths:
+      - 'swear/**'
+
+jobs:
+  general-deploy-pipeline:
+    uses: ./.github/workflows/reusable-deploy.yml
+    with:
+      service_port: 8088
+      service_name: swear
+      command_args: -log-format=json -env-mode=prod
+    secrets: inherit

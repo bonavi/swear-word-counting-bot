@@ -28,7 +28,7 @@ type TgBotSenderService interface {
 var _ SwearService = new(swearService.SwearService)
 
 type SwearService interface {
-	AddSwears(context.Context, model.AddSwearsReq) error
+	AddSwears(context.Context, model.AddSwearsReq) (int, error)
 }
 
 func NewSwearEndpoint(
@@ -42,5 +42,5 @@ func NewSwearEndpoint(
 		tgBotSenderService: tgBotSenderService,
 	}
 
-	tgBot.Handle("/addSwears", e.addSwears)
+	tgBot.Handle("/add", e.addSwears)
 }

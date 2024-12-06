@@ -15,19 +15,22 @@ var replyTexts = map[string]string{
 	"пошла нахуй": "А не пошел бы ты сам нахуй, козел",
 }
 
-func (s *CheckerService) CheckMessage(ctx context.Context, req model.CheckMessageReq) (string, error) {
+func (s *CheckerService) CheckMessage(ctx context.Context, req model.CheckMessageReq) (res model.CheckMessageRes, err error) {
 	ctx, span := tracer.Start(ctx, "CheckMessage")
 	defer span.End()
 
 	// Кастомный хэндлинг
 	if reply, ok := replyTexts[strings.ToLower(req.Message.Text)]; ok {
-		return reply, nil
+		return model.CheckMessageRes{
+			SwearsCount: 0,
+			Reply:       reply,
+		}, nil
 	}
 
 	// Получаем все маты
 	swearsMap, err := s.swearService.GetSwears(ctx)
 	if err != nil {
-		return "", err
+		return res, err
 	}
 
 	// Проверяем на маты
@@ -35,10 +38,10 @@ func (s *CheckerService) CheckMessage(ctx context.Context, req model.CheckMessag
 
 	// Если матов нет, выходим
 	if len(swears) == 0 {
-		return "", nil
+		return res, nil
 	}
 
-	log.Info(ctx, "Матершиник найден")
+	log.Info(ctx, "Матершинник найден")
 
 	// Сохраняем статистику
 	if err = s.statisticRepository.SaveStatistic(ctx, statisticModel.SaveStatisticsReq{
@@ -48,8 +51,11 @@ func (s *CheckerService) CheckMessage(ctx context.Context, req model.CheckMessag
 		Swears:    swears,
 		Datetime:  req.Message.Datetime,
 	}); err != nil {
-		return "", err
+		return res, err
 	}
 
-	return "", nil
+	return model.CheckMessageRes{
+		SwearsCount: len(swears),
+		Reply:       "",
+	}, nil
 }

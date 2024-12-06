@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	"pkg/slices"
 	"swearBot/internal/services/swear/model"
 )
 
@@ -35,7 +36,7 @@ func (s *SwearService) AddSwears(ctx context.Context, req model.AddSwearsReq) (i
 		}
 	}
 
-	req.Swears = newSwears
+	req.Swears = slices.Unique(newSwears)
 
 	if len(req.Swears) == 0 {
 		return 0, nil

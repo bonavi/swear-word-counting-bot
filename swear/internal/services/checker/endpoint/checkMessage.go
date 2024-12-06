@@ -24,7 +24,7 @@ func (e *endpoint) checkMessage(c telebot.Context) error {
 	message := c.Message()
 
 	// Проверяем сообщение и получаем на него ответ
-	reply, err := e.service.CheckMessage(ctx, model.CheckMessageReq{
+	res, err := e.service.CheckMessage(ctx, model.CheckMessageReq{
 		User: model.User{
 			ID:        user.ID,
 			FirstName: user.FirstName,
@@ -41,11 +41,24 @@ func (e *endpoint) checkMessage(c telebot.Context) error {
 		return err
 	}
 
+	if res.SwearsCount != 0 {
+		if err = e.tgBot.React(message.Chat, message, telebot.ReactionOptions{
+			Reactions: []telebot.Reaction{{
+				Type:        "emoji",
+				Emoji:       "👾",
+				CustomEmoji: "",
+			}},
+			Big: true,
+		}); err != nil {
+			return errors.InternalServer.Wrap(err)
+		}
+	}
+
 	// Если ответ есть
-	if reply != "" {
+	if res.Reply != "" {
 
 		// Отправляем ответ
-		if err = c.Send(reply); err != nil {
+		if err = c.Send(res.Reply); err != nil {
 			return errors.InternalServer.Wrap(err)
 		}
 	}

@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"strings"
 
 	"pkg/log"
 	"swearBot/internal/services/checker/model"
@@ -9,14 +10,24 @@ import (
 	statisticModel "swearBot/internal/services/statistic/model"
 )
 
-func (s *CheckerService) CheckMessage(ctx context.Context, req model.CheckMessageReq) error {
+var replyTexts = map[string]string{
+	"пошел нахуй": "А не пошел бы ты сам нахуй, козел",
+	"пошла нахуй": "А не пошел бы ты сам нахуй, козел",
+}
+
+func (s *CheckerService) CheckMessage(ctx context.Context, req model.CheckMessageReq) (string, error) {
 	ctx, span := tracer.Start(ctx, "CheckMessage")
 	defer span.End()
+
+	// Кастомный хэндлинг
+	if reply, ok := replyTexts[strings.ToLower(req.Message.Text)]; ok {
+		return reply, nil
+	}
 
 	// Получаем все маты
 	swearsMap, err := s.swearService.GetSwears(ctx)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// Проверяем на маты
@@ -24,7 +35,7 @@ func (s *CheckerService) CheckMessage(ctx context.Context, req model.CheckMessag
 
 	// Если матов нет, выходим
 	if len(swears) == 0 {
-		return nil
+		return "", nil
 	}
 
 	log.Info(ctx, "Матершиник найден")
@@ -37,8 +48,8 @@ func (s *CheckerService) CheckMessage(ctx context.Context, req model.CheckMessag
 		Swears:    swears,
 		Datetime:  req.Message.Datetime,
 	}); err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return "", nil
 }

@@ -5,7 +5,7 @@ import (
 
 	"gopkg.in/telebot.v3"
 
-	"pkg/log"
+	"pkg/errors"
 	"swearBot/internal/services/checker/model"
 )
 
@@ -15,8 +15,6 @@ func (e *endpoint) checkMessage(c telebot.Context) error {
 	// Формируем базовый контекст
 	ctx := context.Background()
 
-	log.Info(ctx, "Хендлим сообщение")
-
 	// Трейсинг
 	ctx, span := tracer.Start(ctx, "checkMessage")
 	defer span.End()
@@ -25,8 +23,8 @@ func (e *endpoint) checkMessage(c telebot.Context) error {
 	user := c.Sender()
 	message := c.Message()
 
-	// Проверяем сообщение
-	if err := e.service.CheckMessage(ctx, model.CheckMessageReq{
+	// Проверяем сообщение и получаем на него ответ
+	reply, err := e.service.CheckMessage(ctx, model.CheckMessageReq{
 		User: model.User{
 			ID:        user.ID,
 			FirstName: user.FirstName,
@@ -38,8 +36,18 @@ func (e *endpoint) checkMessage(c telebot.Context) error {
 			ID:       message.ID,
 			ChatID:   message.Chat.ID,
 		},
-	}); err != nil {
-		log.Error(ctx, err)
+	})
+	if err != nil {
+		return err
+	}
+
+	// Если ответ есть
+	if reply != "" {
+
+		// Отправляем ответ
+		if err = c.Send(reply); err != nil {
+			return errors.InternalServer.Wrap(err)
+		}
 	}
 
 	return nil

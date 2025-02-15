@@ -36,6 +36,7 @@ const (
 	ColumnProfileBackgroundEmojiId = "profile_background_emoji_id"
 	ColumnHasVisibleHistory        = "has_visible_history"
 	ColumnUnrestrictBoosts         = "unrestrict_boosts"
+	ColumnCountUsers               = "count_users"
 )
 
 func WithPrefix(column string) string {

@@ -28,4 +28,5 @@ type SaveChatReq struct {
 	ProfileBackgroundEmojiID string
 	HasVisibleHistory        bool
 	UnrestrictBoosts         int
+	CountUsers               *int
 }

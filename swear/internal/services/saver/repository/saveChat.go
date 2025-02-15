@@ -41,6 +41,7 @@ func (r *SaverRepository) SaveChat(ctx context.Context, req saverModel.SaveChatR
 			chatsDDL.ColumnProfileBackgroundEmojiId: req.ProfileBackgroundEmojiID,
 			chatsDDL.ColumnHasVisibleHistory:        req.HasVisibleHistory,
 			chatsDDL.ColumnUnrestrictBoosts:         req.UnrestrictBoosts,
+			chatsDDL.ColumnCountUsers:               req.CountUsers,
 		}).
 		Suffix(fmt.Sprintf(`ON CONFLICT (%s) DO NOTHING`, chatsDDL.ColumnID)),
 	)

@@ -121,7 +121,7 @@ func (s *CheckerService) SaveAllData(ctx context.Context, c telebot.Context) err
 
 	// Сохраняем сообщение
 	if err = s.saverService.SaveMessage(ctx, saverModel.SaveMessageReq{
-		ID:                 message.ID,
+		TgID:               message.ID,
 		ChatID:             chat.ID,
 		UserID:             user.ID,
 		ThreadID:           message.ThreadID,

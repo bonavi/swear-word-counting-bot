@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
 
@@ -14,7 +13,7 @@ func (r *SaverRepository) SaveMessage(ctx context.Context, req saverModel.SaveMe
 	return r.db.Exec(ctx, sq.
 		Insert(messagesDDL.Table).
 		SetMap(map[string]any{
-			messagesDDL.ColumnID:                 req.ID,
+			messagesDDL.ColumnTgID:               req.TgID,
 			messagesDDL.ColumnChatID:             req.ChatID,
 			messagesDDL.ColumnUserID:             req.UserID,
 			messagesDDL.ColumnThreadID:           req.ThreadID,
@@ -42,7 +41,6 @@ func (r *SaverRepository) SaveMessage(ctx context.Context, req saverModel.SaveMe
 			messagesDDL.ColumnConnectedWebsite:   req.ConnectedWebsite,
 			messagesDDL.ColumnSenderBoostCount:   req.SenderBoostCount,
 			messagesDDL.ColumnHasMediaSpoiler:    req.HasMediaSpoiler,
-		}).
-		Suffix(fmt.Sprintf(`ON CONFLICT (%s) DO NOTHING`, messagesDDL.ColumnID)),
+		}),
 	)
 }

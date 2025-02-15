@@ -3,7 +3,7 @@ package model
 import "time"
 
 type SaveMessageReq struct {
-	ID                 int
+	TgID               int
 	ChatID             int64
 	UserID             int64
 	ThreadID           int

@@ -10,6 +10,7 @@ const (
 
 const (
 	ColumnID                 = "id"
+	ColumnTgID               = "tg_id"
 	ColumnChatID             = "chat_id"
 	ColumnUserID             = "user_id"
 	ColumnThreadID           = "thread_id"

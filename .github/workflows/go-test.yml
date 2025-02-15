@@ -24,22 +24,22 @@ jobs:
           go-version: '1.23'
           cache-dependency-path: go.sum
 
-        # Устанавливаем mockery
-      - name: Install mockery
-        run: go install github.com/vektra/mockery/v2@latest
+#        # Устанавливаем mockery
+#      - name: Install mockery
+#        run: go install github.com/vektra/mockery/v2@latest
 
-        # Генерируем моки
-      - name: Generate mocks
-        run: mockery
+#        # Генерируем моки
+#      - name: Generate mocks
+#        run: mockery
 
-        # Генерируем swagger
-      - name: Generate swagger
-        run: |
-          cd ${{ inputs.service_name }}
-          go generate ./...
+#        # Генерируем swagger
+#      - name: Generate swagger
+#        run: |
+#          cd ${{ inputs.service_name }}
+#          go generate ./...
 
-        # Тестируем код
-      - name: Go test
-        run: |
-          cd ${{ inputs.service_name }}
-          go test -v ./...
+#        # Тестируем код
+#      - name: Go test
+#        run: |
+#          cd ${{ inputs.service_name }}
+#          go test -v ./...

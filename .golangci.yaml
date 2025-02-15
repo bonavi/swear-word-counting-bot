@@ -22,7 +22,6 @@ linters:
     - errname # error variable name
     - exhaustive # exhaustivestruct
     - exhaustruct # check for missing fields in struct literals
-    - exportloopref # check for loop variable captured by a closure
     - forbidigo # check for forbidden imports
     - forcetypeassert # check for forced type assertions
     - goconst # check for constants
@@ -104,6 +103,7 @@ linters:
     # Deprecated linters
     - execinquery # check for exec in query
     - exhaustivestruct # check for missing fields in struct literals
+    - exportloopref # check for loop variable captured by a closure
     - ifshort # check for if statement with a short body
     - interfacer  # check for interface bloat
     - structcheck # check for struct tags

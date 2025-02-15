@@ -14,6 +14,36 @@ type MockStatisticRepository struct {
 	mock.Mock
 }
 
+// GetStatistics provides a mock function with given fields: ctx, req
+func (_m *MockStatisticRepository) GetStatistics(ctx context.Context, req model.GetStatisticsReq) ([]model.Statistic, error) {
+	ret := _m.Called(ctx, req)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetStatistics")
+	}
+
+	var r0 []model.Statistic
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, model.GetStatisticsReq) ([]model.Statistic, error)); ok {
+		return rf(ctx, req)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, model.GetStatisticsReq) []model.Statistic); ok {
+		r0 = rf(ctx, req)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]model.Statistic)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, model.GetStatisticsReq) error); ok {
+		r1 = rf(ctx, req)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // SaveStatistic provides a mock function with given fields: _a0, _a1
 func (_m *MockStatisticRepository) SaveStatistic(_a0 context.Context, _a1 model.SaveStatisticsReq) error {
 	ret := _m.Called(_a0, _a1)

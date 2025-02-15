@@ -86,7 +86,7 @@ jobs:
 
         # Получаем Dockerfile из артефактов
       - name: Download Dockerfile
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: Dockerfile
           path: .
@@ -119,7 +119,7 @@ jobs:
 
         # Получаем docker-compose.yml из артефактов
       - name: Download docker-compose.yml
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: docker-compose.yml
           path: .

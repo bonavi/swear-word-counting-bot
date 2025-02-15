@@ -6,9 +6,9 @@ import (
 	sq "github.com/Masterminds/squirrel"
 
 	"pkg/ddlHelper"
+	"swearBot/internal/ddl/statisticDDL"
 	"swearBot/internal/services/statistic/model"
 	repoModel "swearBot/internal/services/statistic/repository/model"
-	"swearBot/internal/services/statistic/repository/statisticDDL"
 )
 
 func (r *StatisticRepository) GetStatistics(ctx context.Context, req model.GetStatisticsReq) (statistics []model.Statistic, err error) {

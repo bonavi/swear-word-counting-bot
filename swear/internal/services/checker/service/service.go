@@ -4,22 +4,27 @@ import (
 	"context"
 
 	"go.opentelemetry.io/otel"
+	"gopkg.in/telebot.v3"
 
+	saverModel "swearBot/internal/services/saver/model"
+	saverService "swearBot/internal/services/saver/service"
 	statisticModel "swearBot/internal/services/statistic/model"
-	statisticRepository "swearBot/internal/services/statistic/repository"
+	statisticService "swearBot/internal/services/statistic/service"
 	swearService "swearBot/internal/services/swear/service"
 )
 
 var tracer = otel.Tracer("/server/internal/services/checker/service")
 
 type CheckerService struct {
-	statisticRepository StatisticRepository
-	swearService        SwearService
+	statisticService StatisticService
+	swearService     SwearService
+	saverService     SaverService
+	tgBot            *telebot.Bot
 }
 
-var _ StatisticRepository = new(statisticRepository.StatisticRepository)
+var _ StatisticService = new(statisticService.StatisticService)
 
-type StatisticRepository interface {
+type StatisticService interface {
 	SaveStatistic(context.Context, statisticModel.SaveStatisticsReq) error
 }
 
@@ -29,12 +34,27 @@ type SwearService interface {
 	GetSwears(context.Context) (map[string]struct{}, error)
 }
 
+var _ SaverService = new(saverService.SaverService)
+
+type SaverService interface {
+	SaveUser(context.Context, saverModel.SaveUserReq) error
+	SaveChat(context.Context, saverModel.SaveChatReq) error
+	SaveMessage(context.Context, saverModel.SaveMessageReq) error
+}
+
 func NewCheckerService(
-	checkerRepository StatisticRepository,
+	checkerService StatisticService,
 	swearService SwearService,
-) *CheckerService {
-	return &CheckerService{
-		statisticRepository: checkerRepository,
-		swearService:        swearService,
+	saverService SaverService,
+	tgBot *telebot.Bot,
+) {
+
+	e := &CheckerService{
+		statisticService: checkerService,
+		swearService:     swearService,
+		saverService:     saverService,
+		tgBot:            tgBot,
 	}
+
+	tgBot.Handle(telebot.OnText, e.CheckMessage) // Обработка обычного текста
 }

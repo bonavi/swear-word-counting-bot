@@ -5,8 +5,8 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 
+	"swearBot/internal/ddl/statisticDDL"
 	"swearBot/internal/services/statistic/model"
-	"swearBot/internal/services/statistic/repository/statisticDDL"
 )
 
 func (r *StatisticRepository) SaveStatistic(ctx context.Context, req model.SaveStatisticsReq) error {

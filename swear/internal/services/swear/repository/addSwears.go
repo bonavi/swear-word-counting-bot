@@ -5,8 +5,8 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 
+	"swearBot/internal/ddl/swearsDDL"
 	"swearBot/internal/services/swear/model"
-	"swearBot/internal/services/swear/repository/swearsDDL"
 )
 
 func (r *SwearRepository) AddSwears(ctx context.Context, req model.AddSwearsReq) (err error) {

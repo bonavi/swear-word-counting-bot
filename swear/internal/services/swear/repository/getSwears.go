@@ -6,7 +6,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 
 	"pkg/errors"
-	"swearBot/internal/services/swear/repository/swearsDDL"
+	"swearBot/internal/ddl/swearsDDL"
 )
 
 func (r *SwearRepository) GetSwears(ctx context.Context) (swears []string, err error) {

@@ -37,7 +37,7 @@ runs:
 
     # Загружаем docker-compose.yml в артефакты
     - name: Upload docker-compose.yml
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: docker-compose.yml
         path: docker-compose.yml

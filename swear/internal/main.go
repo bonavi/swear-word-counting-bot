@@ -25,8 +25,9 @@ import (
 	"pkg/trace"
 	"swearBot/internal/config"
 	_ "swearBot/internal/docs"
-	checkerEndpoint "swearBot/internal/services/checker/endpoint"
 	checkerService "swearBot/internal/services/checker/service"
+	saverRepository "swearBot/internal/services/saver/repository"
+	saverService "swearBot/internal/services/saver/service"
 	shedulerService "swearBot/internal/services/scheduler"
 	statisticEndpoint "swearBot/internal/services/statistic/endpoint"
 	statisticRepository "swearBot/internal/services/statistic/repository"
@@ -167,16 +168,18 @@ func run() error {
 	defer tgBot.Close()
 
 	// Регистрируем репозитории
+	saverRepository := saverRepository.NewSaverRepository(pgsql)
 	statisticRepository := statisticRepository.NewStatisticRepository(pgsql)
 	swearRepository := swearRepository.NewSwearRepository(pgsql)
 
 	// Регистрируем сервисы
+	saverService := saverService.NewSaverService(saverRepository)
 	statisticService, err := statisticService.NewStatisticService(statisticRepository)
 	if err != nil {
 		return err
 	}
 	swearService := swearService.NewSwearService(swearRepository)
-	checkerService := checkerService.NewCheckerService(statisticRepository, swearService)
+	checkerService.NewCheckerService(statisticService, swearService, saverService, tgBot)
 
 	log.Info(ctx, "Запускаем планировщик")
 	if err = shedulerService.NewScheduler().Start(); err != nil {
@@ -188,7 +191,6 @@ func run() error {
 	r.Mount("/swagger", httpSwagger.WrapHandler)
 
 	// Регистрируем Телеграм-эндпоинты
-	checkerEndpoint.NewCheckerEndpoint(tgBot, checkerService)
 	swearEndpoint.NewSwearEndpoint(tgBot, swearService)
 	statisticEndpoint.NewStatisticEndpoint(tgBot, statisticService)
 	tgBot.Handle("/start", func(c telebot.Context) error {

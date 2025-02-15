@@ -1,9 +1,13 @@
 package model
 
+import "time"
+
 type SaveMessageReq struct {
 	ID                 int
+	ChatID             int64
+	UserID             int64
 	ThreadID           int
-	Unixtime           int64
+	DateTime           time.Time
 	OriginalMessageID  int
 	OriginalSignature  string
 	OriginalSenderName string

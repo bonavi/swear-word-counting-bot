@@ -15,8 +15,10 @@ func (r *SaverRepository) SaveMessage(ctx context.Context, req saverModel.SaveMe
 		Insert(messagesDDL.Table).
 		SetMap(map[string]any{
 			messagesDDL.ColumnID:                 req.ID,
+			messagesDDL.ColumnChatID:             req.ChatID,
+			messagesDDL.ColumnUserID:             req.UserID,
 			messagesDDL.ColumnThreadID:           req.ThreadID,
-			messagesDDL.ColumnUnixtime:           req.Unixtime,
+			messagesDDL.ColumnDateTime:           req.DateTime,
 			messagesDDL.ColumnOriginalMessageID:  req.OriginalMessageID,
 			messagesDDL.ColumnOriginalSignature:  req.OriginalSignature,
 			messagesDDL.ColumnOriginalSenderName: req.OriginalSenderName,

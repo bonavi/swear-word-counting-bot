@@ -10,8 +10,10 @@ const (
 
 const (
 	ColumnID                 = "id"
+	ColumnChatID             = "chat_id"
+	ColumnUserID             = "user_id"
 	ColumnThreadID           = "thread_id"
-	ColumnUnixtime           = "unixtime"
+	ColumnDateTime           = "date_time"
 	ColumnOriginalMessageID  = "original_message_id"
 	ColumnOriginalSignature  = "original_signature"
 	ColumnOriginalSenderName = "original_sender_name"
